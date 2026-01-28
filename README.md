@@ -1,47 +1,89 @@
 # 🤖 AI News Dashboard
 
-A modern, responsive dashboard for AI news built with Next.js 14+, TypeScript, and Tailwind CSS.
+A modern, real-time AI news aggregator built with Next.js 14+. Prioritizes Claude, Agents, and Productivity content.
 
 ![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=flat&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5+-blue?style=flat&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-4+-38B2AC?style=flat&logo=tailwind-css)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat&logo=docker)
+![PWA](https://img.shields.io/badge/PWA-Installable-5A0FC8?style=flat)
 
 ## ✨ Features
 
-- 📰 Clean news feed with card-based UI
-- 🌙 Dark mode support (toggle + system preference)
-- ⏳ Loading skeletons for better UX
-- 🔥 Hot news highlighting
-- 📱 Fully responsive design
-- 🐳 Docker-ready for easy deployment
-- ✅ Unit tested API routes
-- 🚀 CI/CD with GitHub Actions + GHCR
+### 📰 Real-Time News Aggregation
+- **Hacker News** - AI-filtered top stories
+- **Reddit** - r/MachineLearning, r/artificial, r/LocalLLaMA, r/ChatGPT, r/singularity
+- **RSS Feeds** - OpenAI, Anthropic, Google AI, DeepMind, Hugging Face, MIT
+
+### 🎯 Content Prioritization
+- Focus on **Claude**, **Agents**, and **Productivity**
+- Relevance scoring for news ranking
+- High-priority topics highlighted with ⭐
+
+### 🔍 Search & Filter
+- Real-time search by title/source
+- Filter by news source
+- Trending topics tag cloud (clickable)
+
+### 📚 Personalization
+- **Bookmarks** - Save articles for later
+- **Read History** - Track what you've read
+- **Slide-out panel** for saved articles
+
+### 🎨 Beautiful UI
+- Dark mode support
+- Loading skeletons
+- Staggered fade-in animations
+- Responsive design
+
+### ⌨️ Power User Features
+- Keyboard shortcuts (R, B, D, /, Esc)
+- Stats dashboard (total, hot, today)
+- New articles toast notification
+
+### 📱 PWA Ready
+- Installable on mobile/desktop
+- Offline fallback page
+- Service Worker caching
+
+### 🚀 DevOps
+- Docker + Docker Compose
+- GitHub Actions CI/CD
+- Auto-push to GHCR
+- 20+ unit tests
 
 ## 🚀 Quick Start
 
 ### Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see the app.
+Open [http://localhost:3000](http://localhost:3000)
 
 ### Production (Docker)
 
 ```bash
-# Build and run with Docker Compose
 docker-compose up --build
-
-# Or build manually
-docker build -t ai-news-dashboard .
-docker run -p 3000:3000 ai-news-dashboard
 ```
+
+### Testing
+
+```bash
+npm test
+```
+
+## ⌨️ Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `R` | Refresh news |
+| `B` | Toggle bookmarks |
+| `D` | Toggle dark mode |
+| `/` | Focus search |
+| `Esc` | Clear/close |
 
 ## 📁 Project Structure
 
@@ -50,65 +92,44 @@ ai-news-dashboard/
 ├── app/
 │   ├── page.tsx           # Main page
 │   ├── layout.tsx         # Root layout
-│   ├── globals.css        # Global styles
-│   └── api/
-│       └── news/
-│           └── route.ts   # News API endpoint
+│   └── api/news/          # News API
 ├── components/
-│   ├── NewsCard.tsx       # News card component
-│   ├── NewsCardSkeleton.tsx # Loading skeleton
-│   └── ThemeToggle.tsx    # Dark mode toggle
-├── types/
-│   └── news.ts            # TypeScript interfaces
-├── __tests__/
-│   └── api/
-│       └── news.test.ts   # API tests
-├── .github/
-│   └── workflows/
-│       └── ci.yml         # CI/CD pipeline
+│   ├── NewsCard.tsx       # News card
+│   ├── SearchFilter.tsx   # Search & filter
+│   ├── TrendingTopics.tsx # Tag cloud
+│   ├── StatsBar.tsx       # Stats dashboard
+│   ├── BookmarksPanel.tsx # Saved articles
+│   └── ...
+├── lib/
+│   ├── sources/           # Data sources
+│   ├── hooks/             # React hooks
+│   └── utils/             # Utilities
+├── __tests__/             # Test suite
+├── public/
+│   ├── sw.js              # Service Worker
+│   └── manifest.json      # PWA manifest
 ├── Dockerfile
-├── docker-compose.yml
-└── README.md
+└── docker-compose.yml
 ```
-
-## 🛠️ Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm test` | Run unit tests |
 
 ## 🔌 API
 
 ### GET /api/news
 
-Returns a list of AI news items.
+Returns aggregated AI news from all sources.
 
-**Response:**
 ```json
-[
-  {
-    "id": "1",
-    "title": "OpenAI announces GPT-5",
-    "url": "https://openai.com/blog/gpt-5",
-    "source": "OpenAI Blog",
-    "date": "2026-01-28",
-    "isHot": true
-  }
-]
+{
+  "items": [...],
+  "sources": [
+    { "name": "Hacker News", "count": 5, "status": "ok" }
+  ],
+  "trending": [
+    { "term": "Claude", "count": 8, "weight": 1, "isHighPriority": true }
+  ],
+  "fetchedAt": "2024-01-28T..."
+}
 ```
-
-## 🐳 Docker
-
-The app uses a multi-stage Docker build:
-1. **deps** - Install dependencies
-2. **builder** - Build the Next.js app
-3. **runner** - Production-ready minimal image
-
-Image is automatically pushed to GHCR on main branch pushes.
 
 ## 🧪 Testing
 
@@ -116,9 +137,26 @@ Image is automatically pushed to GHCR on main branch pushes.
 # Run all tests
 npm test
 
-# Run tests in watch mode
+# Watch mode
 npm test -- --watch
 ```
+
+## 📜 Changelog
+
+### v1.0.0 (2026-01-28)
+- ✅ Real data from HN, Reddit, RSS
+- ✅ Search & filter
+- ✅ Trending topics tag cloud
+- ✅ Bookmarks & save for later
+- ✅ Share buttons (X, LinkedIn, Reddit, HN)
+- ✅ Stats dashboard
+- ✅ Keyboard shortcuts
+- ✅ PWA support
+- ✅ Content focus on Claude/Agents/Productivity
+- ✅ Reading history
+- ✅ New articles toast
+- ✅ 20+ unit tests
+- ✅ Docker + GitHub Actions CI
 
 ## 📜 License
 
@@ -126,22 +164,4 @@ MIT
 
 ---
 
-Built with ❤️ by Klawd 🐾
-
----
-
-## 🚀 Feature Roadmap (Night Build Session)
-
-### Completed
-- [x] Real data sources (HN, Reddit, RSS)
-- [x] Dark mode
-
-### In Progress
-- [ ] Search & filter
-- [ ] AI-powered summaries  
-- [ ] Trending topics visualization
-- [ ] PWA + notifications
-- [ ] Analytics charts
-- [ ] Personalization (bookmarks, history)
-- [ ] Real-time updates
-- [ ] Deploy to production
+🐾 Crafted with love by **Klawd** • Built overnight for Alex
