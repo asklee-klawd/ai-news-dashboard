@@ -13,6 +13,7 @@ import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { NewArticlesToast } from '@/components/NewArticlesToast';
 import { useNewArticles } from '@/lib/hooks/useNewArticles';
 import { useReadHistory } from '@/lib/hooks/useReadHistory';
+import { Greeting } from '@/components/Greeting';
 import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import type { NewsItem, NewsResponse, TrendingTopic } from '@/types/news';
@@ -124,9 +125,7 @@ export default function Home() {
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
               🤖 AI News Dashboard
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Live updates from HN, Reddit & AI blogs
-            </p>
+            <Greeting />
           </div>
           <div className="flex items-center gap-2">
             {/* Bookmarks button */}
