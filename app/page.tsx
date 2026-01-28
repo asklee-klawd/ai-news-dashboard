@@ -1,13 +1,16 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { NewsCard } from '@/components/NewsCard';
 import { NewsCardSkeleton } from '@/components/NewsCardSkeleton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchFilter } from '@/components/SearchFilter';
 import { TrendingTopics } from '@/components/TrendingTopics';
 import { BookmarksPanel } from '@/components/BookmarksPanel';
+import { StatsBar } from '@/components/StatsBar';
+import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
 import { useBookmarks } from '@/lib/hooks/useBookmarks';
+import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import type { NewsItem, NewsResponse, TrendingTopic } from '@/types/news';
 
 export default function Home() {
@@ -25,6 +28,9 @@ export default function Home() {
   // Bookmarks
   const { bookmarks, toggleBookmark, isBookmarked, removeBookmark, clearAll, count: bookmarkCount } = useBookmarks();
   const [showBookmarks, setShowBookmarks] = useState(false);
+
+  // Refs
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const fetchNews = async () => {
     try {
@@ -53,6 +59,25 @@ export default function Home() {
     const interval = setInterval(fetchNews, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onRefresh: fetchNews,
+    onToggleBookmarks: () => setShowBookmarks(prev => !prev),
+    onToggleDarkMode: () => {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    },
+    onClearSearch: () => {
+      setSearchQuery('');
+      setSelectedSource(null);
+      setShowBookmarks(false);
+    },
+    onFocusSearch: () => {
+      searchInputRef.current?.focus();
+    },
+  });
 
   // Get unique sources from news items
   const availableSources = useMemo(() => {
@@ -99,6 +124,7 @@ export default function Home() {
               onClick={() => setShowBookmarks(true)}
               className="relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
               aria-label="Saved articles"
+              title="Saved articles (B)"
             >
               <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -115,6 +141,7 @@ export default function Home() {
               disabled={loading}
               className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
               aria-label="Refresh"
+              title="Refresh (R)"
             >
               <svg 
                 className={`w-5 h-5 text-gray-700 dark:text-gray-300 ${loading ? 'animate-spin' : ''}`} 
@@ -131,6 +158,11 @@ export default function Home() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {/* Stats Bar */}
+        {!loading && news.length > 0 && (
+          <StatsBar news={news} lastUpdated={lastUpdated} />
+        )}
+
         {/* Trending Topics */}
         {!loading && trending.length > 0 && (
           <TrendingTopics
@@ -146,6 +178,7 @@ export default function Home() {
           onFilterSource={setSelectedSource}
           sources={availableSources}
           selectedSource={selectedSource}
+          searchInputRef={searchInputRef}
         />
 
         {/* Source status */}
@@ -154,7 +187,7 @@ export default function Home() {
             {sources.map((source) => (
               <span
                 key={source.name}
-                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
+                className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
                   source.status === 'ok'
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                     : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
@@ -163,11 +196,6 @@ export default function Home() {
                 {source.name}: {source.count}
               </span>
             ))}
-            {lastUpdated && (
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
-                Updated: {new Date(lastUpdated).toLocaleTimeString()}
-              </span>
-            )}
           </div>
         )}
 
@@ -196,13 +224,18 @@ export default function Home() {
               ? Array.from({ length: 5 }).map((_, i) => (
                   <NewsCardSkeleton key={i} />
                 ))
-              : filteredNews.map((item) => (
-                  <NewsCard 
-                    key={item.id} 
-                    item={item}
-                    isBookmarked={isBookmarked(item.id)}
-                    onToggleBookmark={() => toggleBookmark(item)}
-                  />
+              : filteredNews.map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <NewsCard 
+                      item={item}
+                      isBookmarked={isBookmarked(item.id)}
+                      onToggleBookmark={() => toggleBookmark(item)}
+                    />
+                  </div>
                 ))}
           </div>
         )}
@@ -246,6 +279,9 @@ export default function Home() {
         onRemove={removeBookmark}
         onClearAll={clearAll}
       />
+
+      {/* Keyboard Shortcuts Help */}
+      <KeyboardShortcutsHelp />
     </div>
   );
 }

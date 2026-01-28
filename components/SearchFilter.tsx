@@ -1,19 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 
 interface SearchFilterProps {
   onSearch: (query: string) => void;
   onFilterSource: (source: string | null) => void;
   sources: string[];
   selectedSource: string | null;
+  searchInputRef?: RefObject<HTMLInputElement | null>;
 }
 
 export function SearchFilter({ 
   onSearch, 
   onFilterSource, 
   sources, 
-  selectedSource 
+  selectedSource,
+  searchInputRef,
 }: SearchFilterProps) {
   const [query, setQuery] = useState('');
 
@@ -42,10 +44,11 @@ export function SearchFilter({
           </svg>
         </div>
         <input
+          ref={searchInputRef}
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search AI news..."
+          placeholder="Search AI news... (press /)"
           className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
         />
         {query && (
