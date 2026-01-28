@@ -12,6 +12,7 @@ import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { NewArticlesToast } from '@/components/NewArticlesToast';
 import { useNewArticles } from '@/lib/hooks/useNewArticles';
+import { useReadHistory } from '@/lib/hooks/useReadHistory';
 import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import type { NewsItem, NewsResponse, TrendingTopic } from '@/types/news';
@@ -37,6 +38,9 @@ export default function Home() {
 
   // New articles detection
   const { newCount, dismiss: dismissNewArticles } = useNewArticles(news);
+
+  // Read history
+  const { markAsRead, isRead } = useReadHistory();
 
   const fetchNews = async () => {
     try {
@@ -239,7 +243,9 @@ export default function Home() {
                     <NewsCard 
                       item={item}
                       isBookmarked={isBookmarked(item.id)}
+                      isRead={isRead(item.id)}
                       onToggleBookmark={() => toggleBookmark(item)}
+                      onRead={() => markAsRead(item.id, item.title, item.source)}
                     />
                   </div>
                 ))}
@@ -271,9 +277,17 @@ export default function Home() {
         )}
       </main>
 
-      <footer className="border-t border-gray-200 dark:border-gray-700 py-6 mt-8">
-        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
-          Built with Next.js, TypeScript & Tailwind CSS • Data from HN, Reddit & AI blogs
+      <footer className="border-t border-gray-200 dark:border-gray-700 py-8 mt-8">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+            Built with Next.js, TypeScript & Tailwind CSS
+          </div>
+          <div className="text-xs text-gray-400 dark:text-gray-500">
+            Data from Hacker News, Reddit & AI blogs • Focus: Claude, Agents & Productivity
+          </div>
+          <div className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+            🐾 Crafted by Klawd • v1.0.0
+          </div>
         </div>
       </footer>
 

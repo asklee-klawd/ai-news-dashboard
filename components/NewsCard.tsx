@@ -7,18 +7,44 @@ import { ShareButtons } from './ShareButtons';
 interface NewsCardProps {
   item: NewsItem;
   isBookmarked?: boolean;
+  isRead?: boolean;
   onToggleBookmark?: () => void;
+  onRead?: () => void;
 }
 
-export function NewsCard({ item, isBookmarked = false, onToggleBookmark }: NewsCardProps) {
+export function NewsCard({ 
+  item, 
+  isBookmarked = false, 
+  isRead = false,
+  onToggleBookmark,
+  onRead,
+}: NewsCardProps) {
+  const handleClick = () => {
+    onRead?.();
+  };
+
   return (
-    <article className="group relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600">
+    <article 
+      className={`
+        group relative rounded-xl border bg-white dark:bg-gray-800 p-6 shadow-sm 
+        hover:shadow-md transition-all duration-200 
+        ${isRead 
+          ? 'border-gray-100 dark:border-gray-800 opacity-75' 
+          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+        }
+      `}
+    >
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             {item.isHot && (
               <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
                 🔥 Hot
+              </span>
+            )}
+            {isRead && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
+                ✓ Read
               </span>
             )}
             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -31,11 +57,18 @@ export function NewsCard({ item, isBookmarked = false, onToggleBookmark }: NewsC
             )}
           </div>
           
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+          <h2 className={`
+            text-lg font-semibold transition-colors
+            ${isRead 
+              ? 'text-gray-600 dark:text-gray-400' 
+              : 'text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400'
+            }
+          `}>
             <a 
               href={item.url} 
               target="_blank" 
               rel="noopener noreferrer"
+              onClick={handleClick}
               className="after:absolute after:inset-0"
             >
               {item.title}
