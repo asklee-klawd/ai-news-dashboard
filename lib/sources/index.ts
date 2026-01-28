@@ -2,6 +2,7 @@ import type { NewsItem } from '@/types/news';
 import { fetchHackerNews } from './hackernews';
 import { fetchReddit } from './reddit';
 import { fetchRSSFeeds } from './rss';
+import { fetchArxiv } from './arxiv';
 import { scoreRelevance } from '../utils/keywords';
 
 export interface AggregatedNews {
@@ -19,10 +20,11 @@ export async function aggregateNews(limit: number = 20): Promise<AggregatedNews>
   const allItems: NewsItem[] = [];
 
   // Fetch from all sources in parallel
-  const [hnItems, redditItems, rssItems] = await Promise.all([
+  const [hnItems, redditItems, rssItems, arxivItems] = await Promise.all([
     fetchHackerNews(10).catch(() => []),
     fetchReddit(10).catch(() => []),
     fetchRSSFeeds(10).catch(() => []),
+    fetchArxiv(5).catch(() => []),
   ]);
 
   // Track source stats
@@ -44,7 +46,13 @@ export async function aggregateNews(limit: number = 20): Promise<AggregatedNews>
     status: rssItems.length > 0 ? 'ok' : 'error',
   });
 
-  allItems.push(...hnItems, ...redditItems, ...rssItems);
+  sources.push({
+    name: 'ArXiv',
+    count: arxivItems.length,
+    status: arxivItems.length > 0 ? 'ok' : 'error',
+  });
+
+  allItems.push(...hnItems, ...redditItems, ...rssItems, ...arxivItems);
 
   // Dedupe by URL (keep first occurrence)
   const seen = new Set<string>();
