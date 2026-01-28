@@ -5,4 +5,15 @@ export interface NewsItem {
   source: string;
   date: string;
   isHot?: boolean;
+  score?: number;
+}
+
+export interface NewsResponse {
+  items: NewsItem[];
+  sources: {
+    name: string;
+    count: number;
+    status: 'ok' | 'error';
+  }[];
+  fetchedAt: string;
 }

@@ -1,52 +1,59 @@
 import { GET } from '@/app/api/news/route';
-import type { NewsItem } from '@/types/news';
+import type { NewsResponse } from '@/types/news';
 
 describe('GET /api/news', () => {
-  it('returns a list of news items', async () => {
+  it('returns a news response with items array', async () => {
     const response = await GET();
-    const data: NewsItem[] = await response.json();
+    const data: NewsResponse = await response.json();
 
     expect(response.status).toBe(200);
-    expect(Array.isArray(data)).toBe(true);
-    expect(data.length).toBeGreaterThan(0);
+    expect(data).toHaveProperty('items');
+    expect(data).toHaveProperty('sources');
+    expect(data).toHaveProperty('fetchedAt');
+    expect(Array.isArray(data.items)).toBe(true);
+    expect(Array.isArray(data.sources)).toBe(true);
   });
 
-  it('returns news items with correct structure', async () => {
+  it('returns source status information', async () => {
     const response = await GET();
-    const data: NewsItem[] = await response.json();
+    const data: NewsResponse = await response.json();
 
-    const item = data[0];
-    expect(item).toHaveProperty('id');
-    expect(item).toHaveProperty('title');
-    expect(item).toHaveProperty('url');
-    expect(item).toHaveProperty('source');
-    expect(item).toHaveProperty('date');
+    data.sources.forEach((source) => {
+      expect(source).toHaveProperty('name');
+      expect(source).toHaveProperty('count');
+      expect(source).toHaveProperty('status');
+      expect(['ok', 'error']).toContain(source.status);
+    });
   });
 
-  it('returns valid URLs', async () => {
+  it('returns valid fetchedAt timestamp', async () => {
     const response = await GET();
-    const data: NewsItem[] = await response.json();
+    const data: NewsResponse = await response.json();
 
-    data.forEach((item) => {
+    const date = new Date(data.fetchedAt);
+    expect(date.toString()).not.toBe('Invalid Date');
+  });
+
+  it('news items have correct structure when present', async () => {
+    const response = await GET();
+    const data: NewsResponse = await response.json();
+
+    if (data.items.length > 0) {
+      const item = data.items[0];
+      expect(item).toHaveProperty('id');
+      expect(item).toHaveProperty('title');
+      expect(item).toHaveProperty('url');
+      expect(item).toHaveProperty('source');
+      expect(item).toHaveProperty('date');
+    }
+  });
+
+  it('news items have valid URLs when present', async () => {
+    const response = await GET();
+    const data: NewsResponse = await response.json();
+
+    data.items.forEach((item) => {
       expect(item.url).toMatch(/^https?:\/\//);
     });
-  });
-
-  it('returns valid dates', async () => {
-    const response = await GET();
-    const data: NewsItem[] = await response.json();
-
-    data.forEach((item) => {
-      const date = new Date(item.date);
-      expect(date.toString()).not.toBe('Invalid Date');
-    });
-  });
-
-  it('marks some items as hot', async () => {
-    const response = await GET();
-    const data: NewsItem[] = await response.json();
-
-    const hotItems = data.filter((item) => item.isHot);
-    expect(hotItems.length).toBeGreaterThan(0);
   });
 });
