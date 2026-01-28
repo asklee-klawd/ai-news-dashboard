@@ -6,6 +6,7 @@ export interface NewsItem {
   date: string;
   isHot?: boolean;
   score?: number;
+  bookmarkedAt?: string;
 }
 
 export interface TrendingTopic {

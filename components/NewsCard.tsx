@@ -1,12 +1,15 @@
 'use client';
 
 import type { NewsItem } from '@/types/news';
+import { BookmarkButton } from './BookmarkButton';
 
 interface NewsCardProps {
   item: NewsItem;
+  isBookmarked?: boolean;
+  onToggleBookmark?: () => void;
 }
 
-export function NewsCard({ item }: NewsCardProps) {
+export function NewsCard({ item, isBookmarked = false, onToggleBookmark }: NewsCardProps) {
   return (
     <article className="group relative rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm hover:shadow-md transition-all duration-200 hover:border-blue-300 dark:hover:border-blue-600">
       <div className="flex items-start justify-between gap-4">
@@ -20,6 +23,11 @@ export function NewsCard({ item }: NewsCardProps) {
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {item.source}
             </span>
+            {item.score && item.score > 100 && (
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                ↑{item.score}
+              </span>
+            )}
           </div>
           
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
@@ -46,6 +54,16 @@ export function NewsCard({ item }: NewsCardProps) {
             </span>
           </div>
         </div>
+
+        {/* Bookmark button */}
+        {onToggleBookmark && (
+          <div className="relative z-10">
+            <BookmarkButton
+              isBookmarked={isBookmarked}
+              onToggle={onToggleBookmark}
+            />
+          </div>
+        )}
       </div>
     </article>
   );

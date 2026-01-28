@@ -6,6 +6,8 @@ import { NewsCardSkeleton } from '@/components/NewsCardSkeleton';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchFilter } from '@/components/SearchFilter';
 import { TrendingTopics } from '@/components/TrendingTopics';
+import { BookmarksPanel } from '@/components/BookmarksPanel';
+import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import type { NewsItem, NewsResponse, TrendingTopic } from '@/types/news';
 
 export default function Home() {
@@ -19,6 +21,10 @@ export default function Home() {
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
+  
+  // Bookmarks
+  const { bookmarks, toggleBookmark, isBookmarked, removeBookmark, clearAll, count: bookmarkCount } = useBookmarks();
+  const [showBookmarks, setShowBookmarks] = useState(false);
 
   const fetchNews = async () => {
     try {
@@ -87,7 +93,23 @@ export default function Home() {
               Live updates from HN, Reddit & AI blogs
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {/* Bookmarks button */}
+            <button
+              onClick={() => setShowBookmarks(true)}
+              className="relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors"
+              aria-label="Saved articles"
+            >
+              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              </svg>
+              {bookmarkCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-blue-600 rounded-full">
+                  {bookmarkCount > 9 ? '9+' : bookmarkCount}
+                </span>
+              )}
+            </button>
+            
             <button
               onClick={fetchNews}
               disabled={loading}
@@ -174,7 +196,14 @@ export default function Home() {
               ? Array.from({ length: 5 }).map((_, i) => (
                   <NewsCardSkeleton key={i} />
                 ))
-              : filteredNews.map((item) => <NewsCard key={item.id} item={item} />)}
+              : filteredNews.map((item) => (
+                  <NewsCard 
+                    key={item.id} 
+                    item={item}
+                    isBookmarked={isBookmarked(item.id)}
+                    onToggleBookmark={() => toggleBookmark(item)}
+                  />
+                ))}
           </div>
         )}
 
@@ -208,6 +237,15 @@ export default function Home() {
           Built with Next.js, TypeScript & Tailwind CSS • Data from HN, Reddit & AI blogs
         </div>
       </footer>
+
+      {/* Bookmarks Panel */}
+      <BookmarksPanel
+        bookmarks={bookmarks}
+        isOpen={showBookmarks}
+        onClose={() => setShowBookmarks(false)}
+        onRemove={removeBookmark}
+        onClearAll={clearAll}
+      />
     </div>
   );
 }
