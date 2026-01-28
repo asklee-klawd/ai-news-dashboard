@@ -10,6 +10,8 @@ import { BookmarksPanel } from '@/components/BookmarksPanel';
 import { StatsBar } from '@/components/StatsBar';
 import { KeyboardShortcutsHelp } from '@/components/KeyboardShortcutsHelp';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { NewArticlesToast } from '@/components/NewArticlesToast';
+import { useNewArticles } from '@/lib/hooks/useNewArticles';
 import { useBookmarks } from '@/lib/hooks/useBookmarks';
 import { useKeyboardShortcuts } from '@/lib/hooks/useKeyboardShortcuts';
 import type { NewsItem, NewsResponse, TrendingTopic } from '@/types/news';
@@ -32,6 +34,9 @@ export default function Home() {
 
   // Refs
   const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // New articles detection
+  const { newCount, dismiss: dismissNewArticles } = useNewArticles(news);
 
   const fetchNews = async () => {
     try {
@@ -286,6 +291,16 @@ export default function Home() {
 
       {/* PWA Install Prompt */}
       <PWAInstallPrompt />
+
+      {/* New Articles Toast */}
+      <NewArticlesToast
+        count={newCount}
+        onRefresh={() => {
+          fetchNews();
+          dismissNewArticles();
+        }}
+        onDismiss={dismissNewArticles}
+      />
     </div>
   );
 }
