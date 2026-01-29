@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
-  basePath: '/ai-news',
+  // Ready for Vercel deployment
 };
 
 export default nextConfig;
